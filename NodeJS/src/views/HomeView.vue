@@ -78,7 +78,7 @@ const categoriaSeleccionada = ref("ALL");
 
 // encabezados
 const headers = [
-  { title: "ID", key: "ID" },
+  { title: "ID", key: "IdBoardgame" },
   { title: "Nombre", key: "Name" },
   { title: "Publisher", key: "Publisher" },
   { title: "Category", key: "Category" },

@@ -71,6 +71,7 @@ export const useBoardgamesStore = defineStore("boardgames", () => {
 
   return {
     boardgames,
+    boardgame,
     loading,
     listarBoardgames,
     obtenerBoardgame,

@@ -21,10 +21,10 @@ export const useFavoritesStore = defineStore("favorites", () => {
   };
 
   // POST /favorites
-  const agregarFavorite = ({ idBoardgame, onComplete, onError }) => {
+  const agregarFavorite = ({ IdBoardgame, onComplete, onError }) => {
     loading.value = true;
     axios
-      .post(API_BASE, {idBoardgame})
+      .post(API_BASE, {IdBoardgame})
       .then((res) => {
         onComplete(res);
       })

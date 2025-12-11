@@ -1,33 +1,33 @@
 // Importar conexión de la BD
 const connection = require('../config/connection');
 
-/* NOTA: Se va a hacer una doble validación: En FrontEnd y BackEnd*/
 /* Aquí se validan los campos al crear un boardgame */
 function validarCamposCrear(boardgame) {
   const errores = [];
-  const { name, publisher, category, description, year } = boardgame;
-  if (!name || !name.trim()) {
+  const { Name, Publisher, Category, Description, Year } = boardgame;
+
+  if (!Name || !Name.trim()) {
     errores.push("El nombre es obligatorio");
   }
-  if (!publisher || !publisher.trim()) {
+  if (!Publisher || !Publisher.trim()) {
     errores.push("El publisher es obligatorio");
   }
-  if (!category || !category.trim()) {
+  if (!Category || !Category.trim()) {
     errores.push("La categoría es obligatoria");
   }
-  if (name && name.length > 80) {
+  if (Name && Name.length > 80) {
     errores.push("El nombre no debe superar 80 caracteres");
   }
-  if (publisher && publisher.length > 60) {
+  if (Publisher && Publisher.length > 60) {
     errores.push("El publisher no debe superar 60 caracteres");
   }
-  if (category && category.length > 2) {
+  if (Category && Category.length > 2) {
     errores.push("La categoría no debe superar 2 caracteres");
   }
-  if (description && description.length > 200) {
+  if (Description && Description.length > 200) {
     errores.push("La descripción no debe superar 200 caracteres");
   }
-  if (year && year.toString().length > 4) {
+  if (Year && Year.toString().length > 4) {
     errores.push("El año no debe superar 4 caracteres");
   }
   return errores;
@@ -36,23 +36,24 @@ function validarCamposCrear(boardgame) {
 /* Aquí se validan los campos al editar un boardgame */
 function validarCamposEditar(boardgame) {
   const errores = [];
-  const { publisher, category, description, year } = boardgame;
-  if (!publisher || !publisher.trim()) {
+  const { Publisher, Category, Description, Year } = boardgame;
+
+  if (!Publisher || !Publisher.trim()) {
     errores.push("El publisher es obligatorio");
   }
-  if (!category || !category.trim()) {
+  if (!Category || !Category.trim()) {
     errores.push("La categoría es obligatoria");
   }
-  if (publisher && publisher.length > 60) {
+  if (Publisher && Publisher.length > 60) {
     errores.push("El publisher no debe superar 60 caracteres");
   }
-  if (category && category.length > 2) {
+  if (Category && Category.length > 2) {
     errores.push("La categoría no debe superar 2 caracteres");
   }
-  if (description && description.length > 200) {
+  if (Description && Description.length > 200) {
     errores.push("La descripción no debe superar 200 caracteres");
   }
-  if (year && year.toString().length > 4) {
+  if (Year && Year.toString().length > 4) {
     errores.push("El año no debe superar 4 caracteres");
   }
   return errores;
@@ -152,8 +153,8 @@ function editar(req, res) {
   if (connection) {
     const { id } = req.params;
     /* Solo se pueden editar publisher, category, description y year */
-    const { publisher, category, description, year } = req.body;
-    const datosActualizar = {publisher, category, description,year};
+    const { Publisher, Category, Description, Year } = req.body;
+    const datosActualizar = {Publisher, Category, Description, Year};
 
     /* Aplicamos las validaciones de arriba */
     const errores = validarCamposEditar(datosActualizar);
@@ -186,19 +187,32 @@ function editar(req, res) {
 function eliminar(req, res) {
   if (connection) {
     const { id } = req.params;
-    let sql = 'DELETE FROM Boardgames WHERE ID = ?';
-    connection.query(sql, [id], (err, rows) => {
+    /* Eliminar primero las referencias en la tabla Favorites */
+    let sqlDeleteFavs = 'DELETE FROM Favorites WHERE IdBoardgame = ?';
+    connection.query(sqlDeleteFavs, [id], (err, result) => {
       if (err) {
-        res.json(err);
-      } else {
-        let mensaje = "";
-        if (rows.affectedRows === 0) {
-          mensaje = "No se encontró el Boardgame de mesa";
-        } else {
-          mensaje = "Boardgame eliminado con éxito";
-        }
-        res.json({error: false, data: rows,mensaje: mensaje});
+        // Si falla al borrar favoritos, detenemos y enviamos error
+        return res.status(500).json(err);
       }
+      /* Ahora que está "limpio", eliminamos el Boardgame */
+      let sqlDeleteGame = 'DELETE FROM Boardgames WHERE ID = ?';
+      connection.query(sqlDeleteGame, [id], (err, rows) => {
+        if (err) {
+          res.status(500).json(err);
+        } else {
+          let mensaje = "";
+          if (rows.affectedRows === 0) {
+            mensaje = "No se encontró el Boardgame para eliminar";
+          } else {
+            mensaje = "Boardgame eliminado con éxito (y quitado de favoritos)";
+          }
+          res.json({
+            error: false, 
+            data: rows, 
+            mensaje: mensaje
+          });
+        }
+      });
     });
   }
 }

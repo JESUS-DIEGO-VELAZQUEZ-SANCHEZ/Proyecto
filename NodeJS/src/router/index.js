@@ -28,8 +28,8 @@ const router = createRouter({
       props: true, // hace que el :id llegue como prop
     },
     {
-      path: '/detalle/:id',
-      name: 'detalle',
+      path: '/boardgame/:id',
+      name: 'boardgameId',
       component: DetailView,
       props: true,
     },

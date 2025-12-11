@@ -8,6 +8,7 @@ function listar(req, res) {
     let sql = `
       SELECT 
         f.ID,
+        f.IdBoardgame,
         b.Name,
         b.Publisher,
         b.Category,
@@ -30,9 +31,9 @@ function listar(req, res) {
 // POST /favorites 
 function crear(req, res) {
   if (connection) {
-    const { idBoardgame } = req.body;
+    const { IdBoardgame } = req.body;
 
-    if (!idBoardgame) {
+    if (!IdBoardgame) {
       return res.status(400).json({
         error: true,
         mensaje: "El IdBoardgame es obligatorio para agregar a Favorites"
@@ -41,7 +42,7 @@ function crear(req, res) {
 
     // 1. Verificar que el juego exista
     let sqlCheck = 'SELECT * FROM Boardgames WHERE ID = ?';
-    connection.query(sqlCheck, [idBoardgame], (err, rows) => {
+    connection.query(sqlCheck, [IdBoardgame], (err, rows) => {
       if (err) {
         return res.json(err);
       }
@@ -55,7 +56,7 @@ function crear(req, res) {
 
       // 2. Verificar que NO esté ya en favorites
       let sqlCheckFav = 'SELECT * FROM Favorites WHERE IdBoardgame = ?';
-      connection.query(sqlCheckFav, [idBoardgame], (err, favRows) => {
+      connection.query(sqlCheckFav, [IdBoardgame], (err, favRows) => {
         if (err) {
           return res.json(err);
         }
@@ -68,7 +69,7 @@ function crear(req, res) {
         }
 
         // 3. Insertar en favorites
-        const favorito = { IdBoardgame: idBoardgame };
+        const favorito = { IdBoardgame};
         let sqlInsert = 'INSERT INTO Favorites SET ?';
         connection.query(sqlInsert, [favorito], (err, rows) => {
           if (err) {
@@ -91,7 +92,7 @@ function crear(req, res) {
 function eliminar(req, res) {
   if (connection) {
     const { id } = req.params; 
-    let sql = 'DELETE FROM Favorites WHERE IdBoardgame = ?';
+    let sql = 'DELETE FROM Favorites WHERE ID = ?';
     connection.query(sql, [id], (err, rows) => {
       if (err) {
         res.json(err);

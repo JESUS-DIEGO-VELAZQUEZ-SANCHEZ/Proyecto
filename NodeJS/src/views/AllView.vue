@@ -88,10 +88,10 @@ const { favorites } = storeToRefs(favoritesStore);
 
 // diálogo de eliminar
 const dialogEliminar = ref(false);
-const idEliminar = ref(null);
+const idEliminar = ref(null); // id del boardgame a eliminar
 
-// campos que mostrará la tarjeta
-// OJO: usamos CategoryName (nombre completo) en lugar del código numérico
+// Campos que mostrará la Card
+// Ojo: usamos CategoryName para el nombre completo
 const fields = [
   { label: "Nombre", value: "Name" },
   { label: "Publisher", value: "Publisher" },
@@ -111,20 +111,26 @@ const categoryLabel = (code) => {
   return map[code] || "Desconocida";
 };
 
-// añadimos id (en minúsculas, para Card) y CategoryName
+// Adaptamos los boardgames para la Card:
+// - id = ID del boardgame
+// - CategoryName = nombre de la categoría
+// AllView.vue
 const boardgamesConCategoria = computed(() =>
   boardgames.value.map((juego) => ({
     ...juego,
-    id: juego.ID, // Card emite usando item.id
+    id: juego.ID || juego.id, 
     CategoryName: categoryLabel(juego.Category),
   }))
 );
 
-// conjunto de IDs que están en favoritos
-const idsFavoritos = computed(() => favorites.value.map((fav) => fav.ID));
+// 1. Aseguramos que la lista de IDs sean Números
+const idsFavoritos = computed(() =>
+  favorites.value.map((fav) => Number(fav.IdBoardgame))
+);
 
-// saber si un juego está marcado como favorito
-const esFavorito = (id) => idsFavoritos.value.includes(id);
+// 2. Comparamos siempre convirtiendo a Número
+const esFavorito = (IdBoardgame) =>
+  idsFavoritos.value.includes(Number(IdBoardgame));
 
 // cargar datos al entrar a la vista
 onMounted(() => {
@@ -137,10 +143,9 @@ const irEditar = (id) => {
   router.push(`/editar/${id}`);
 };
 
-// navegar a detalle (si tienes una vista de detalle; si no, puedes dejar solo un console.log)
+// navegar a detalle (si lo implementas)
 const irDetalle = (id) => {
-  // ajusta la ruta si tu detalle se llama diferente
-  router.push(`/detalle/${id}`);
+  router.push(`/boardgame/${id}`);
 };
 
 // abrir modal de eliminar juego
@@ -168,11 +173,16 @@ const confirmarEliminar = async () => {
 };
 
 // alternar favorito (agregar / quitar)
-const toggleFavorite = async (id) => {
-  if (esFavorito(id)) {
-    // Quitar de favoritos -> DELETE /favorites/:id
+const toggleFavorite = async (IdBoardgame) => {
+  // Buscar si este juego ya está en Favorites
+  const favorito = favorites.value.find(
+    (fav) => fav.IdBoardgame === IdBoardgame
+  );
+
+  if (favorito) {
+    // YA es favorito → quitarlo
     await favoritesStore.eliminarFavorite({
-      id,
+      id: favorito.ID, // ID de la tabla Favorites
       onComplete: (response) => {
         notify.show(
           response.data.mensaje || "Juego quitado de favoritos",
@@ -186,9 +196,9 @@ const toggleFavorite = async (id) => {
       },
     });
   } else {
-    // Agregar a favoritos -> POST /favorites
+    // NO es favorito → agregarlo
     await favoritesStore.agregarFavorite({
-      idBoardgame: id,
+      IdBoardgame,
       onComplete: (response) => {
         notify.show(
           response.data.mensaje || "Juego agregado a favoritos",
@@ -204,3 +214,4 @@ const toggleFavorite = async (id) => {
   }
 };
 </script>
+
