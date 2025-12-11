@@ -8,11 +8,6 @@
     </v-card-title>
 
     <!-- Tabla de datos -->
-    <!-- ":header son las columnas"-->
-    <!-- ":items son los datos"-->
-    <!-- "class" es para darle sombra -->
-    <!-- ":loading" muestra un algo mientras carga -->
-    <!-- "loading-text" es el texto que se muestra mientras carga -->
     <v-data-table
       :headers="headers"
       :items="data"
@@ -20,32 +15,37 @@
       :loading="loading"
       loading-text="Cargando información..."
     >
-          <!-- Mensaje cuando no hay datos -->
-          <template #no-data>
-            <div class="text-center py-4 text-grey">
-              No hay registros disponibles
-            </div>
-          </template>
+      <!-- Celda personalizada para Category -->
+      <template #item.Category="{ item }">
+        <span class="category-chip" :class="`cat-${item.Category}`">
+          {{ categoryLabel(item.Category) }}
+        </span>
+      </template>
 
-      <!-- Personaliza la celda de la columna acciones -->
+      <!-- Mensaje cuando no hay datos -->
+      <template #no-data>
+        <div class="text-center py-4 text-grey">
+          No hay registros disponibles
+        </div>
+      </template>
+
+      <!-- Columna de acciones -->
       <template #item.acciones="{ item }">
-        <!-- Botón de editar -->
         <v-btn
           size="small"
           variant="outlined"
           color="primary"
-          @click="$emit('editar', item.id)"
+          @click="$emit('editar', item.ID)"
         >
-          Editar
+          Ver
         </v-btn>
 
-        <!-- Botón de eliminar -->
         <v-btn
           size="small"
           variant="outlined"
           color="red"
           class="ml-2"
-          @click="$emit('eliminar', item.id)"
+          @click="$emit('eliminar', item.ID)"
         >
           Eliminar
         </v-btn>
@@ -55,21 +55,33 @@
 </template>
 
 <script setup>
-  /*
+/*
   Props que recibe el componente:
   - data: Arreglo con los registros a mostrar
   - headers: Columnas de la tabla
   - loading: Booleano para indicar si está cargando
   - title: Título mostrado en la parte superior
 */
-const props = defineProps({
+
+const categoryLabel = (code) => {
+  const map = {
+    11: "Adventure",
+    12: "Puzzle",
+    13: "Strategy",
+    14: "Fantasy",
+    15: "Civilization",
+  };
+  return map[code] || code;
+};
+
+defineProps({
   data: {
     type: Array,
     required: true,
   },
   headers: {
     type: Array,
-    required: true, 
+    required: true,
   },
   loading: {
     type: Boolean,
@@ -81,3 +93,42 @@ const props = defineProps({
   },
 });
 </script>
+
+<style scoped>
+.category-chip {
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+/* 11 Adventure */
+.cat-11 {
+  background-color: #e3f2fd;
+  color: #0d47a1;
+}
+
+/* 12 Puzzle */
+.cat-12 {
+  background-color: #e8f5e9;
+  color: #1b5e20;
+}
+
+/* 13 Strategy */
+.cat-13 {
+  background-color: #fffde7;
+  color: #f57f17;
+}
+
+/* 14 Fantasy */
+.cat-14 {
+  background-color: #f3e5f5;
+  color: #6a1b9a;
+}
+
+/* 15 Civilization */
+.cat-15 {
+  background-color: #fff3e0;
+  color: #e65100;
+}
+</style>

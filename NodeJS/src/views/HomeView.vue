@@ -1,36 +1,55 @@
 <template>
   <v-container class="mt-4 py-6">
-    <h1>Personas</h1>
-    <v-row>
-      <v-col cols="12" class="d-flex justify-end mb-4">
-        <v-btn color="primary" variant="flat" @click="router.push('/agregar')">
-          Agregar Persona
+    <h1>Favoritos</h1>
+
+    <v-row class="mb-4">
+      <!-- Botón agregar juego -->
+      <v-col cols="12" md="6" class="d-flex align-center mb-2 mb-md-0">
+        <v-btn
+          color="primary"
+          variant="flat"
+          @click="router.push('/boardgame')"
+        >
+          Ver todos los Juegos de mesa
         </v-btn>
       </v-col>
 
+      <!-- Filtro por categoría -->
+      <v-col cols="12" md="6">
+        <v-select
+          v-model="categoriaSeleccionada"
+          :items="categorias"
+          item-title="label"
+          item-value="value"
+          label="Filtrar por categoría"
+          variant="solo"
+          density="comfortable"
+        />
+      </v-col>
+    </v-row>
+
+    <v-row>
       <v-col cols="12">
         <Table
-          :data="personas"
+          :data="favoritesFiltrados"
           :headers="headers"
           :loading="loading"
           @editar="irEditar"
           @eliminar="abrirModalEliminar"
-        >
-        </Table>
+        />
       </v-col>
     </v-row>
 
+    <!-- Diálogo eliminar -->
     <v-dialog v-model="dialogEliminar" max-width="420">
       <v-card>
-        <v-card-title class="text-h6">¿Eliminar persona?</v-card-title>
-        <v-card-text> Esta acción no se puede deshacer. </v-card-text>
+        <v-card-title class="text-h6">¿Quitar de favoritos?</v-card-title>
+        <v-card-text>Esta acción no se puede deshacer.</v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-
           <v-btn variant="text" @click="dialogEliminar = false">
             Cancelar
           </v-btn>
-
           <v-btn color="red" variant="flat" @click="confirmarEliminar">
             Eliminar
           </v-btn>
@@ -41,54 +60,56 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
-import Table from "@/components/Table.vue";
-import { usePersonasStore } from "@/stores/boardgames";
 import { storeToRefs } from "pinia";
-import { useNotifyStore } from "@/stores/notify";
-const notify = useNotifyStore();
+
+import Table from "@/components/Table.vue";
+import { useFavoritesStore } from "@/stores/favorites";
 
 const router = useRouter();
-const store = usePersonasStore();
+const favoritesStore = useFavoritesStore();
 
-const { personas, loading } = storeToRefs(store);
+// store
+const { favorites, loading } = storeToRefs(favoritesStore);
 
-const dialogEliminar = ref(false);
-const idEliminar = ref(null);
+// categoría seleccionada
+const categoriaSeleccionada = ref("ALL");
 
+// encabezados
 const headers = [
-  { title: "ID", key: "id" },
-  { title: "Nombre", key: "nombre" },
-  { title: "Dirección", key: "direccion" },
-  { title: "Teléfono", key: "telefono" },
+  { title: "ID", key: "ID" },
+  { title: "Nombre", key: "Name" },
+  { title: "Publisher", key: "Publisher" },
+  { title: "Category", key: "Category" },
+  { title: "Año", key: "Year" },
   { title: "Acciones", key: "acciones", sortable: false },
 ];
 
+// categorías según la rúbrica
+const categorias = [
+  { label: "Todas", value: "ALL" },
+  { label: "Adventure", value: 11 },
+  { label: "Puzzle", value: 12 },
+  { label: "Strategy", value: 13 },
+  { label: "Fantasy", value: 14 },
+  { label: "Civilization", value: 15 },
+];
 
-onMounted(() => {
-  store.listarPersonas();
+// filtro dinámico
+const favoritesFiltrados = computed(() => {
+  if (categoriaSeleccionada.value === "ALL") {
+    return favorites.value;
+  }
+  const seleccion = Number(categoriaSeleccionada.value);
+  return favorites.value.filter(
+    (juego) => Number(juego.Category) === seleccion
+  );
 });
 
+// cargar datos
+onMounted(() => {
+  favoritesStore.listarFavorites();
+});
 
-const irEditar = (id) => {
-  router.push(`/editar/${id}`);
-};
-
-const abrirModalEliminar = (id) => {
-  idEliminar.value = id;
-  dialogEliminar.value = true;
-};
-
-const confirmarEliminar = async () => {
-  await store.eliminarPersona({
-    id: idEliminar.value,
-    onComplete: (response) => {
-      console.log(response);
-      notify.show(response.data.mensaje, "success");
-      setTimeout(() => store.listarPersonas(), 1000);
-    },
-  });
-  dialogEliminar.value = false;
-};
 </script>

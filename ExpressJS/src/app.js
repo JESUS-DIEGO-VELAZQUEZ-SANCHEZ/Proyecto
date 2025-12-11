@@ -1,27 +1,19 @@
 const express = require('express');
+const app = express();
 const cors = require('cors');
 
-const app = express();
-
 app.use(cors());
-app.use (express.json());
-app.use(express.urlencoded({extended: true}));
-
-const port = process.env.PORT || 3000
-
-app.set('port', port);
+app.use(express.json());
 
 // Rutas
-app.get('/', (req, res) => {
-    res.send("Hola");
-});
+const boardgamesRoutes = require('./routes/boardgamesRoutes');
+const favoritesRoutes = require('./routes/favoritesRoutes');
 
-// Levantar el servidor
-app.listen(app.get('port'), (error) => {
-    if(error){
-        console.log(error);
-    } else {
-        console.log(`Servidor en puerto: ${port}`);
-    }
+/* Middleware de rutas */
+app.use('/boardgame', boardgamesRoutes);
+app.use('/favorites', favoritesRoutes);
+
+const PORT = 3000;
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
-module.exports = app;

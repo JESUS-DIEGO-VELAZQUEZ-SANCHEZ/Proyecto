@@ -5,7 +5,7 @@ const objectConnection = {
     "port": 3306,
     "user": "root",
     // "password": ""
-    "database": "crud_node"
+    "database": "boardgamesdb"
 }
 
 const myConn = mysql.createConnection(objectConnection)

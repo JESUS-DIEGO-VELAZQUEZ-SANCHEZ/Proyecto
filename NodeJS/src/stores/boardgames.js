@@ -4,7 +4,7 @@ import axios from "axios";
 import { ref } from "vue";
 
 export const useBoardgamesStore = defineStore("boardgames", () => {
-  const API_BASE = "http://localhost:3000";
+  const API_BASE = "http://localhost:3000/boardgame";
   const boardgames = ref([]);
   const boardgame = ref({});
   const loading = ref(false);

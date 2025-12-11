@@ -4,7 +4,7 @@ import axios from "axios";
 import { ref } from "vue";
 
 export const useFavoritesStore = defineStore("favorites", () => {
-  const API_BASE = "http://localhost:3000";
+  const API_BASE = "http://localhost:3000/favorites";
   const favorites = ref([]);
   const loading = ref(false);
 

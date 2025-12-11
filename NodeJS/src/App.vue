@@ -30,4 +30,11 @@ const { toast } = storeToRefs(notify);
   width: 280px;
   z-index: 9999;
 }
+
+/* Fondo azul bajito para TODAS las vistas */
+body,
+.v-application {
+  background-color: #e3f2fd !important; /* azul muy suave */
+}
+
 </style>
