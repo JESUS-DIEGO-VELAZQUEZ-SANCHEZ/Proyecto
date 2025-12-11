@@ -28,28 +28,6 @@
           No hay registros disponibles
         </div>
       </template>
-
-      <!-- Columna de acciones -->
-      <template #item.acciones="{ item }">
-        <v-btn
-          size="small"
-          variant="outlined"
-          color="primary"
-          @click="$emit('editar', item.ID)"
-        >
-          Ver
-        </v-btn>
-
-        <v-btn
-          size="small"
-          variant="outlined"
-          color="red"
-          class="ml-2"
-          @click="$emit('eliminar', item.ID)"
-        >
-          Eliminar
-        </v-btn>
-      </template>
     </v-data-table>
   </v-card>
 </template>
@@ -63,6 +41,7 @@
   - title: Título mostrado en la parte superior
 */
 
+/* Para convertir de la clave de la categoría al nombre de la categoría */
 const categoryLabel = (code) => {
   const map = {
     11: "Adventure",

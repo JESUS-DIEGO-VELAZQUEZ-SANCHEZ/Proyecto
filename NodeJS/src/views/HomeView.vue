@@ -67,26 +67,23 @@ import { storeToRefs } from "pinia";
 import Table from "@/components/Table.vue";
 import { useFavoritesStore } from "@/stores/favorites";
 
+/* Store */
 const router = useRouter();
 const favoritesStore = useFavoritesStore();
-
-// store
 const { favorites, loading } = storeToRefs(favoritesStore);
 
-// categoría seleccionada
+/* Para la categoría seleccionada*/
 const categoriaSeleccionada = ref("ALL");
 
-// encabezados
+/* Encabezados para la tabla */
 const headers = [
-  { title: "ID", key: "IdBoardgame" },
-  { title: "Nombre", key: "Name" },
+  { title: "Name", key: "Name" },
   { title: "Publisher", key: "Publisher" },
   { title: "Category", key: "Category" },
-  { title: "Año", key: "Year" },
-  { title: "Acciones", key: "acciones", sortable: false },
+  { title: "Year", key: "Year" },
 ];
 
-// categorías según la rúbrica
+/* Conversión de las claves de las categorías a los nombres de las categorías */
 const categorias = [
   { label: "Todas", value: "ALL" },
   { label: "Adventure", value: 11 },
@@ -96,7 +93,7 @@ const categorias = [
   { label: "Civilization", value: 15 },
 ];
 
-// filtro dinámico
+/* Función para filtrar por nombre categoría */
 const favoritesFiltrados = computed(() => {
   if (categoriaSeleccionada.value === "ALL") {
     return favorites.value;
@@ -107,9 +104,8 @@ const favoritesFiltrados = computed(() => {
   );
 });
 
-// cargar datos
+/* Cargar los datos */
 onMounted(() => {
   favoritesStore.listarFavorites();
 });
-
 </script>

@@ -3,9 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 // Vistas
 import HomeView from '@/views/HomeView.vue'
 import AddView from '@/views/AddView.vue'
-import EditView from '@/views/EditView.vue'
 import DetailView from '@/views/DetailView.vue'
-import FavoritesView from '@/views/FavoritesView.vue'
 import AllView from '@/views/AllView.vue'
 
 const router = createRouter({
@@ -17,26 +15,15 @@ const router = createRouter({
       component: HomeView,
     },
     {
-      path: '/agregar',
-      name: 'agregar',
+      path: '/addBoardgame',
+      name: 'addBoardgame',
       component: AddView,
-    },
-    {
-      path: '/editar/:id',
-      name: 'editar',
-      component: EditView,
-      props: true, // hace que el :id llegue como prop
     },
     {
       path: '/boardgame/:id',
       name: 'boardgameId',
       component: DetailView,
       props: true,
-    },
-    {
-      path: '/favoritos',
-      name: 'favoritos',
-      component: FavoritesView,
     },
     {
       path: '/boardgame',

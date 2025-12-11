@@ -2,14 +2,31 @@
   <v-container class="mt-4 py-6">
     <h1>Juegos de mesa</h1>
 
-    <v-btn
-    color="primary"
-    variant="flat"
-    class="mt-2 mb-4"
-    @click="router.push('/')"
-    >
-    ← Regresar a Home
-    </v-btn>
+    <!-- Botón Regresar -->
+    <v-row class="mt-2 mb-4" align="center">
+      <v-col cols="12" md="6">
+        <v-btn
+          color="primary"
+          variant="flat"
+          @click="router.push('/')"
+          style="font-weight: 600; letter-spacing: 1px;"
+        >
+          ← REGRESAR A HOME
+        </v-btn>
+      </v-col>
+
+      <!-- Botón Agregar -->
+      <v-col cols="12" md="6" class="d-flex justify-end">
+        <v-btn
+          color="primary"
+          variant="flat"
+          @click="router.push('/addBoardgame')"
+          style="font-weight: 600; letter-spacing: 1px;"
+        >
+          AGREGAR BOARDGAME
+        </v-btn>
+      </v-col>
+    </v-row>
 
     <!-- Grid de tarjetas -->
     <v-row class="mt-4" dense>
@@ -26,7 +43,7 @@
           :fields="fields"
           :is-favorite="esFavorito(juego.id)"
           @toggle-favorite="toggleFavorite"
-          @editar="irEditar"
+          @editar="irEditar(juego.id)"
           @eliminar="abrirModalEliminar"
           @detalle="irDetalle"
         />
@@ -82,79 +99,60 @@ const boardgamesStore = useBoardgamesStore();
 const favoritesStore = useFavoritesStore();
 const notify = useNotifyStore();
 
-// refs de los stores
 const { boardgames, loading } = storeToRefs(boardgamesStore);
 const { favorites } = storeToRefs(favoritesStore);
 
-// diálogo de eliminar
+/* Dialogo de eliminar */
 const dialogEliminar = ref(false);
 const idEliminar = ref(null); // id del boardgame a eliminar
 
-// Campos que mostrará la Card
-// Ojo: usamos CategoryName para el nombre completo
+/* Campos que muestra cada Card, al igual que su valor*/
 const fields = [
-  { label: "Nombre", value: "Name" },
+  { label: "Name", value: "Name" },
   { label: "Publisher", value: "Publisher" },
-  { label: "Categoría", value: "CategoryName" },
-  { label: "Año", value: "Year" },
+  { label: "Year", value: "Year" },
 ];
 
-// mapa de categorías (clave -> nombre)
-const categoryLabel = (code) => {
-  const map = {
-    11: "Adventure",
-    12: "Puzzle",
-    13: "Strategy",
-    14: "Fantasy",
-    15: "Civilization",
-  };
-  return map[code] || "Desconocida";
-};
-
-// Adaptamos los boardgames para la Card:
-// - id = ID del boardgame
-// - CategoryName = nombre de la categoría
-// AllView.vue
+/* Preparamos el ID */
 const boardgamesConCategoria = computed(() =>
   boardgames.value.map((juego) => ({
     ...juego,
     id: juego.ID || juego.id, 
-    CategoryName: categoryLabel(juego.Category),
   }))
 );
 
-// 1. Aseguramos que la lista de IDs sean Números
+/* Asegurarnos que los IDs sean números */
 const idsFavoritos = computed(() =>
   favorites.value.map((fav) => Number(fav.IdBoardgame))
 );
 
-// 2. Comparamos siempre convirtiendo a Número
+/* Verificar si es favorito */
 const esFavorito = (IdBoardgame) =>
   idsFavoritos.value.includes(Number(IdBoardgame));
 
-// cargar datos al entrar a la vista
+/* Cargar datos */
 onMounted(() => {
   boardgamesStore.listarBoardgames(); // GET /boardgame
   favoritesStore.listarFavorites();   // GET /favorites (para saber qué está marcado)
 });
 
-// navegar a editar
+/* Ir a editar */
 const irEditar = (id) => {
-  router.push(`/editar/${id}`);
+  router.push(`/boardgame/${id}?edit=true`);
 };
 
-// navegar a detalle (si lo implementas)
+/* Ir a detalle */
 const irDetalle = (id) => {
   router.push(`/boardgame/${id}`);
 };
 
-// abrir modal de eliminar juego
+/* Modal para eliminar un juego */
 const abrirModalEliminar = (id) => {
   idEliminar.value = id;
   dialogEliminar.value = true;
 };
 
-// confirmar eliminación de juego
+/* Confirmar la eliminación */
 const confirmarEliminar = async () => {
   await boardgamesStore.eliminarBoardgame({
     id: idEliminar.value,
@@ -172,7 +170,7 @@ const confirmarEliminar = async () => {
   dialogEliminar.value = false;
 };
 
-// alternar favorito (agregar / quitar)
+/* Para que cuando se le pique al corazón se agregue o se quite de Favorites */
 const toggleFavorite = async (IdBoardgame) => {
   // Buscar si este juego ya está en Favorites
   const favorito = favorites.value.find(
@@ -180,7 +178,7 @@ const toggleFavorite = async (IdBoardgame) => {
   );
 
   if (favorito) {
-    // YA es favorito → quitarlo
+    // Si es favorito, se quita
     await favoritesStore.eliminarFavorite({
       id: favorito.ID, // ID de la tabla Favorites
       onComplete: (response) => {
@@ -196,7 +194,7 @@ const toggleFavorite = async (IdBoardgame) => {
       },
     });
   } else {
-    // NO es favorito → agregarlo
+    // Si no es favorito, se agrega
     await favoritesStore.agregarFavorite({
       IdBoardgame,
       onComplete: (response) => {

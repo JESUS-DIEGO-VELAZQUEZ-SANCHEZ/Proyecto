@@ -1,7 +1,7 @@
 // Importar conexión de la BD
 const connection = require('../config/connection');
 
-// GET /favorites ----------
+// GET /favorites
 function listar(req, res) {
   if (connection) {
     /* Seleccionamos los campos requeridos en la consulta con JOIN */
@@ -36,7 +36,7 @@ function crear(req, res) {
     if (!IdBoardgame) {
       return res.status(400).json({
         error: true,
-        mensaje: "El IdBoardgame es obligatorio para agregar a Favorites"
+        mensaje: "El IdBoardgame es obligatorio para agregar a favoritos"
       });
     }
 
@@ -50,7 +50,7 @@ function crear(req, res) {
       if (!rows || rows.length === 0) {
         return res.status(404).json({
           error: true,
-          mensaje: "El Boardgame no existe, no se puede agregar a Favorites"
+          mensaje: "El Juego de mesa no existe, no se puede agregar a favoritos"
         });
       }
 
@@ -64,7 +64,7 @@ function crear(req, res) {
         if (favRows.length > 0) {
           return res.status(400).json({
             error: true,
-            mensaje: "El Boardgame ya está en Favorites"
+            mensaje: "El Juego de mesa ya está en favoritos"
           });
         }
 
@@ -78,7 +78,7 @@ function crear(req, res) {
             return res.json({
               error: false,
               data: rows,
-              mensaje: "Boardgame agregado a Favorites con éxito"
+              mensaje: "Juego de mesa agregado a favoritos con éxito"
             });
           }
         });
@@ -99,9 +99,9 @@ function eliminar(req, res) {
       } else {
         let mensaje = "";
         if (rows.affectedRows === 0) {
-          mensaje = "El Boardgame no estaba en Favorites o no existe";
+          mensaje = "El Juego de mesa no estaba en favoritos o no existe";
         } else {
-          mensaje = "Boardgame eliminado de Favorites con éxito";
+          mensaje = "Juego de mesa eliminado de favoritos con éxito";
         }
         res.json({error: false,data: rows,mensaje
         });

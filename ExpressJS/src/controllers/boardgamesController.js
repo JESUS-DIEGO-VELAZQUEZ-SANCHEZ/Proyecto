@@ -27,8 +27,8 @@ function validarCamposCrear(boardgame) {
   if (Description && Description.length > 200) {
     errores.push("La descripción no debe superar 200 caracteres");
   }
-  if (Year && Year.toString().length > 4) {
-    errores.push("El año no debe superar 4 caracteres");
+  if (Year && (isNaN(Year) || Year.toString().length !== 4)) {
+    errores.push("El año debe ser un número de 4 dígitos");
   }
   return errores;
 }
@@ -53,8 +53,8 @@ function validarCamposEditar(boardgame) {
   if (Description && Description.length > 200) {
     errores.push("La descripción no debe superar 200 caracteres");
   }
-  if (Year && Year.toString().length > 4) {
-    errores.push("El año no debe superar 4 caracteres");
+  if (Year && (isNaN(Year) || Year.toString().length !== 4)) {
+    errores.push("El año debe ser un número de 4 dígitos");
   }
   return errores;
 }
@@ -115,7 +115,7 @@ function obtenerBoardgame(req, res) {
       } else {
         let mensaje = "";
         if (boardgame === undefined || boardgame.length === 0) {
-          mensaje = "Boardgame no encontrado";
+          mensaje = "Juego de mesa no encontrado";
         }
         res.json({ data: boardgame, mensaje: mensaje });
       }
@@ -132,7 +132,7 @@ function crear(req, res) {
     if (errores.length > 0) {
       return res.status(400).json({
         error: true,
-        mensaje: "Errores de validación",
+        mensaje: "Verifica la información que ingresaste",
         detalles: errores
       });
     }
@@ -142,7 +142,7 @@ function crear(req, res) {
       if (err) {
         res.json(err);
       } else {
-        res.json({error: false, data: rows, mensaje: "Boardgame creado con éxito"});
+        res.json({error: false, data: rows, mensaje: "Juego de mesa agregado con éxito"});
       }
     });
   }
@@ -161,7 +161,7 @@ function editar(req, res) {
     if (errores.length > 0) {
       return res.status(400).json({
         error: true,
-        mensaje: "Errores de validación",
+        mensaje: "Verifica la información que ingresaste",
         detalles: errores
       });
     }
@@ -173,9 +173,9 @@ function editar(req, res) {
       } else {
         let mensaje = "";
         if (rows.changedRows === 0) {
-          mensaje = "Sin cambios o Boardgame no encontrado";
+          mensaje = "No se realizó ningún cambio";
         } else {
-          mensaje = "Boardgame modificado con éxito";
+          mensaje = "Juego de mesa modificado con éxito";
         }
         res.json({error: false, data: rows, mensaje: mensaje});
       }
@@ -202,9 +202,9 @@ function eliminar(req, res) {
         } else {
           let mensaje = "";
           if (rows.affectedRows === 0) {
-            mensaje = "No se encontró el Boardgame para eliminar";
+            mensaje = "No se encontró el Juego de mesa para eliminar";
           } else {
-            mensaje = "Boardgame eliminado con éxito (y quitado de favoritos)";
+            mensaje = "Juego de mesa eliminado con éxito";
           }
           res.json({
             error: false, 

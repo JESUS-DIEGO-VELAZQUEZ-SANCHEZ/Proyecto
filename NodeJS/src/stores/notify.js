@@ -1,3 +1,4 @@
+/* Esta clase es reutilizada del proyecto visto en clase */
 import { defineStore } from "pinia";
 import { ref } from "vue";
 

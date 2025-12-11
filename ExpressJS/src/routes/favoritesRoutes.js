@@ -8,7 +8,7 @@ router.get('/', favoritesController.listar);
 // POST /favorites
 router.post('/', favoritesController.crear);
 
-// DELETE /favorites/:id  (id = idBoardgame)
+// DELETE /favorites/:id
 router.delete('/:id', favoritesController.eliminar);
 
 module.exports = router;
